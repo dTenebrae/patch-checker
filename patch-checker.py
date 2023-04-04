@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 from pathlib import Path
@@ -9,7 +10,7 @@ P_NOFILE = -3
 P_SUCCESS = 0
 
 
-def check_src_tree(src_path) -> bool:
+def is_src_tree_fine(src_path) -> bool:
     ps = subprocess.Popen("git status",
                           shell=True,
                           cwd=src_path,
@@ -75,17 +76,37 @@ def apply_patches(src_path, patch_path) -> int:
         return P_SUCCESS
 
 
+def remove_md_files():
+    md_list = Path(f"{os.getcwd()}/output/").glob('*.md')
+    for md in md_list:
+        os.remove(md)
+
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print(f"{Path(sys.argv[0]).stem} путь-до-сорцов путь-до-патчей")
         exit(1)
 
+    remove_md_files()
     SRC_PATH = sys.argv[1]
     PATCH_PATH = sys.argv[2]
     patchlist = Path(PATCH_PATH).glob('*.patch')
     for patch in patchlist:
-        if not check_src_tree(SRC_PATH):
+        if not is_src_tree_fine(SRC_PATH):
             print("Something wrong with src tree")
             exit(1)
-        apply_patches(SRC_PATH, patch)
+        apply_result = apply_patches(SRC_PATH, patch)
+        if apply_result == P_SUCCESS:
+            with open("./output/success.md", "a") as f:
+                f.write(f"* {patch.stem}\n")
+        elif apply_result == P_FAILED:
+            with open("./output/failed.md", "a") as f:
+                f.write(f"* {patch.stem}\n")
+        elif apply_result == P_APPLIED:
+            with open("./output/applied.md", "a") as f:
+                f.write(f"* {patch.stem}\n")
+        elif apply_result == P_NOFILE:
+            with open("./output/nofile.md", "a") as f:
+                f.write(f"* {patch.stem}\n")
+
         reset_git_tree(SRC_PATH)
