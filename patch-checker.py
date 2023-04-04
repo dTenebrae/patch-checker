@@ -2,6 +2,12 @@ import sys
 import subprocess
 from pathlib import Path
 
+# CONST
+P_FAILED = -1
+P_APPLIED = -2
+P_NOFILE = -3
+P_SUCCESS = 0
+
 
 def check_src_tree(src_path) -> bool:
     ps = subprocess.Popen("git status",
@@ -57,21 +63,21 @@ def apply_patches(src_path, patch_path) -> int:
     print(patch_path.stem, end=" - ")
     if 'FAILED' in git_status:
         print("Patching failed")
-        return 1
+        return P_FAILED
     elif 'previously applied' in git_status:
         print("Patch already exists in a tree")
-        return 2
+        return P_APPLIED
     elif "can't find file" in git_status:
         print("File supposed to be patched does not exist")
-        return 3
+        return P_NOFILE
     else:
         print("Patching successful")
-        return 0
+        return P_SUCCESS
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print(f"{sys.argv[0]} путь-до-сорцов путь-до-патчей")
+        print(f"{Path(sys.argv[0]).stem} путь-до-сорцов путь-до-патчей")
         exit(1)
 
     SRC_PATH = sys.argv[1]
