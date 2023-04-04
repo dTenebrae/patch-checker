@@ -98,15 +98,15 @@ if __name__ == "__main__":
         apply_result = apply_patches(SRC_PATH, patch)
         if apply_result == P_SUCCESS:
             with open("./output/success.md", "a") as f:
-                f.write(f"* {patch.stem}\n")
+                f.write(f"{patch.stem}.patch\n")
         elif apply_result == P_FAILED:
-            with open("./output/failed.md", "a") as f:
-                f.write(f"* {patch.stem}\n")
+            with open("./output/patch_failed.md", "a") as f:
+                f.write(f"{patch.stem}.patch\n")
         elif apply_result == P_APPLIED:
-            with open("./output/applied.md", "a") as f:
-                f.write(f"* {patch.stem}\n")
+            with open("./output/already_applied.md", "a") as f:
+                f.write(f"{patch.stem}.patch\n")
         elif apply_result == P_NOFILE:
             with open("./output/nofile.md", "a") as f:
-                f.write(f"* {patch.stem}\n")
+                f.write(f"{patch.stem}.patch\n")
 
         reset_git_tree(SRC_PATH)
